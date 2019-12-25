@@ -25,6 +25,14 @@ EOF
 	exit 0
 }
 
+function unknown {
+	cat << EOF
+Unknown subcommand "$sub"; try \`$cmd --help\`.
+EOF
+	exit 1
+}
+
 case $sub in
 	"--help" | "-h" | "" ) help;;
+	*) unknown;;
 esac
