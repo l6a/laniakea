@@ -15,11 +15,16 @@
 # implied.  See the License for the specific language governing
 # permissions and limitations under the License.
 
-cmd=$1
-case $cmd in
-	"--help" | "-h" | "" )
-		cat << EOF
-usage: laniakea <command> [args]
+cmd=$0
+sub=$1
+
+function help {
+	cat << EOF
+Usage: $cmd <subcommand> [args]
 EOF
-		;;
+	exit 0
+}
+
+case $sub in
+	"--help" | "-h" | "" ) help;;
 esac
