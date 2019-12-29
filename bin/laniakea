@@ -41,5 +41,5 @@ function activate {
 case $sub in
 	"--help" | "-h" | "" ) help;;
 	"activate" ) activate "${@:2}";;
-	*) unknown;;
+	*) activate "$@";;
 esac
