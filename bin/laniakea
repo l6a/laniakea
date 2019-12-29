@@ -33,13 +33,26 @@ EOF
 }
 
 function activate {
-	img=$(docker images -f reference="*/$1*:*" -q | head -n1)
-	docker run --rm -it -u $(id -u):$(id -g) -e USER "$img" "${@:2}"
+	i="$1"
+	case "$i" in
+		*/*:* | */*@* ) p=("$i" "$i*");;
+		*:*   | *@*   ) p=("$i" "$i*" "*/$i" "*/$i*");;
+		*/*           ) p=("$i" "$i*" "$i:*" "$i*:*");;
+		*             ) p=("$i" "$i*" "$i:*" "$i*:*" "*/$i" "*/$i*" "*/$i:*" "*/$i*:*");;
+	esac
+
+	for q in "${p[@]}"; do
+		i=$(docker images -f reference="*/$1*:*" -q | head -n1)
+		test -n "$i" && break
+	done
+	test -z "$i" && unknown "$i"
+
+	docker run --rm -it -u $(id -u):$(id -g) -e USER "$i" "${@:2}"
 	exit $?
 }
 
-case $sub in
-	"--help" | "-h" | "" ) help;;
-	"activate" ) activate "${@:2}";;
-	*) activate "$@";;
+case "$sub" in
+	"--help" | "-h" | "" ) help             ;;
+	"activate"           ) activate "${@:2}";;
+	*                    ) activate "$@"    ;;
 esac
