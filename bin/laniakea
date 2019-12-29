@@ -17,7 +17,6 @@
 
 cmd=$0
 sub=$1
-shift
 
 function help {
 	cat << EOF
@@ -35,13 +34,12 @@ EOF
 
 function activate {
 	img=$(docker images -f reference="*/$1*:*" -q | head -n1)
-	shift
-	docker run --rm -it -u $(id -u):$(id -g) -e USER "$img" "$@"
+	docker run --rm -it -u $(id -u):$(id -g) -e USER "$img" "${@:2}"
 	exit $?
 }
 
 case $sub in
 	"--help" | "-h" | "" ) help;;
-	"activate" ) activate "$@";;
+	"activate" ) activate "${@:2}";;
 	*) unknown;;
 esac
