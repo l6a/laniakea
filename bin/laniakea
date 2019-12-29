@@ -34,7 +34,9 @@ EOF
 }
 
 function activate {
-	docker run --rm -it -u $(id -u):$(id -g) -e USER "$@"
+	img=$(docker images -f reference="*/$1*:*" -q | head -n1)
+	shift
+	docker run --rm -it -u $(id -u):$(id -g) -e USER "$img" "$@"
 	exit $?
 }
 
