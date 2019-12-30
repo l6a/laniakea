@@ -81,6 +81,16 @@ cmd=$(basename $0)
 while :; do
 	sub=$1
 	case "$sub" in
+		"--develop" | "-d"   )
+			# Development mode for python packages
+			shift
+			pkg="$(basename $1)"
+			hst="${1%:*}"
+			con="/usr/local/src/${pkg##*:}"
+			test ${hst:0:1} == '/' || hst="$PWD/$hst" # absolute
+			echo "Dev-mode for \"$pkg\" (\"$hst\" -> \"$con\")"
+			addflags -v "$hst:$con"
+			;;
 		"--help" | "-h" | "" ) help             ;;
 		"activate"           ) activate "${@:2}";;
 		*                    ) activate "$@"    ;;
