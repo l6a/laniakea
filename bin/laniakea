@@ -57,7 +57,7 @@ function activate {
 	esac
 
 	for q in "${p[@]}"; do
-		i=$(docker images -f reference="*/$1*:*" -q | head -n1)
+		i=$(docker images -f "reference=$q" -q | head -n1)
 		test -n "$i" && break
 	done
 	test -z "$i" && unknown "$i"
