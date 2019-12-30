@@ -51,9 +51,9 @@ function addflags {
 function activate {
 	i="$1" # image: keep it short so the cases below are readable
 	case "$i" in
-		-*            ) run "$@"; exit $?;;
-		*/*           ) p=("$i" "$i*");;
-		*             ) p=("$i" "$i*" "*/$i" "*/$i*");;
+	-* ) run "$@"; exit $?;;
+	*/*) p=("$i" "$i*");;
+	*  ) p=("$i" "$i*" "*/$i" "*/$i*");;
 	esac
 
 	for q in "${p[@]}"; do
@@ -81,19 +81,19 @@ cmd=$(basename $0)
 while :; do
 	sub=$1
 	case "$sub" in
-		"--develop" | "-d"   )
-			# Development mode for python packages
-			shift
-			pkg="$(basename $1)"
-			hst="${1%:*}"
-			con="/usr/local/src/${pkg##*:}"
-			test ${hst:0:1} == '/' || hst="$PWD/$hst" # absolute
-			echo "Dev-mode for \"$pkg\" (\"$hst\" -> \"$con\")"
-			addflags -v "$hst:$con"
-			;;
-		"--help" | "-h" | "" ) help             ;;
-		"activate"           ) activate "${@:2}";;
-		*                    ) activate "$@"    ;;
+	"--develop" | "-d"  )
+		# Development mode for python packages
+		shift
+		pkg="$(basename $1)"
+		hst="${1%:*}"
+		con="/usr/local/src/${pkg##*:}"
+		test ${hst:0:1} == '/' || hst="$PWD/$hst" # absolute path
+		echo "Dev-mode for \"$pkg\" (\"$hst\" -> \"$con\")"
+		addflags -v "$hst:$con"
+		;;
+	"--help" | "-h" | "") help             ;;
+	"activate"          ) activate "${@:2}";;
+	*                   ) activate "$@"    ;;
 	esac
 	shift
 done
