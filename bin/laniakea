@@ -19,21 +19,21 @@
 # The `laniakea` command has three functionalities: `help`, `unknown`,
 # and `run`, which should all exit after done.
 
-function help {
+help() {
 	cat << EOF
 Usage: $cmd <subcommand> [args]
 EOF
 	exit 0
 }
 
-function unknown {
+unknown() {
 	cat << EOF
 Unknown subcommand "$sub"; try \`$cmd --help\`.
 EOF
 	exit 1
 }
 
-function run {
+run() {
 	docker run "${FLAGS[@]}" -u $(id -u):$(id -g) -e USER "${@}"
 	exit 0
 }
@@ -44,11 +44,12 @@ function run {
 # previous functionalities.
 
 FLAGS=()
-function addflags {
+
+addflags() {
 	FLAGS=("${FLAGS[@]}" "$@")
 }
 
-function activate {
+activate() {
 	i="$1" # image: keep it short so the cases below are readable
 	case "$i" in
 	-* ) run "$@"; exit $?;;
