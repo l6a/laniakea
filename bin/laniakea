@@ -67,7 +67,7 @@ function activate {
 #==============================================================================
 # The "main" program
 
-cmd=$0
+cmd=$(basename $0)
 
 while :; do
 	sub=$1
