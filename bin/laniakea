@@ -52,10 +52,8 @@ function activate {
 	i="$1" # image: keep it short so the cases below are readable
 	case "$i" in
 		-*            ) run "$@"; exit $?;;
-		*/*:* | */*@* ) p=("$i" "$i*");;
-		*:*   | *@*   ) p=("$i" "$i*" "*/$i" "*/$i*");;
-		*/*           ) p=("$i" "$i*" "$i:*" "$i*:*");;
-		*             ) p=("$i" "$i*" "$i:*" "$i*:*" "*/$i" "*/$i*" "*/$i:*" "*/$i*:*");;
+		*/*           ) p=("$i" "$i*");;
+		*             ) p=("$i" "$i*" "*/$i" "*/$i*");;
 	esac
 
 	for q in "${p[@]}"; do
