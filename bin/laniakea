@@ -62,6 +62,10 @@ function activate {
 	done
 	test -z "$i" && unknown "$i"
 
+	n=$(docker images -f "reference=$q" \
+		--format '{{.Repository}}:{{.Tag}}' | head -n1)
+	echo "[laniakea] activating \"$n\""
+
 	addflags '--rm' '-i' '-t'
 	addflags -v "$HOME:/home/$USER"
 	run "$i" "${@:2}"
