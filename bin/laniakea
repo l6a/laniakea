@@ -41,7 +41,7 @@ function run {
 #==============================================================================
 # The `activate` function should check its first argument, look for
 # the apropiate docker image to use, and send the arguments to the
-# previous funcitonalities.
+# previous functionalities.
 
 FLAGS=()
 function addflags {
