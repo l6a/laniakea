@@ -34,7 +34,7 @@ EOF
 }
 
 function run {
-	docker run --rm -it -u $(id -u):$(id -g) -e USER "${@}"
+	docker run "${FLAGS[@]}" -u $(id -u):$(id -g) -e USER "${@}"
 	exit 0
 }
 
@@ -42,6 +42,11 @@ function run {
 # The `activate` function should check its first argument, look for
 # the apropiate docker image to use, and send the arguments to the
 # previous funcitonalities.
+
+FLAGS=()
+function addflags {
+	FLAGS=("${FLAGS[@]}" "$@")
+}
 
 function activate {
 	i="$1"
@@ -59,7 +64,9 @@ function activate {
 	done
 	test -z "$i" && unknown "$i"
 
-	run -v "$HOME:/home/$USER" "$i" "${@:2}"
+	addflags '--rm' '-i' '-t'
+	addflags -v "$HOME:/home/$USER"
+	run "$i" "${@:2}"
 
 	exit 1 # should never reach here
 }
