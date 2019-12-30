@@ -49,7 +49,7 @@ function addflags {
 }
 
 function activate {
-	i="$1"
+	i="$1" # image: keep it short so the cases below are readable
 	case "$i" in
 		-*            ) run "$@"; exit $?;;
 		*/*:* | */*@* ) p=("$i" "$i*");;
