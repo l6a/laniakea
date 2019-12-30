@@ -15,9 +15,6 @@
 # implied.  See the License for the specific language governing
 # permissions and limitations under the License.
 
-cmd=$0
-sub=$1
-
 #==============================================================================
 # The `laniakea` command has three functionalities: `help`, `unknown`,
 # and `run`, which should all exit after done.
@@ -70,12 +67,14 @@ function activate {
 #==============================================================================
 # The "main" program
 
+cmd=$0
+
 while :; do
+	sub=$1
 	case "$sub" in
 		"--help" | "-h" | "" ) help             ;;
 		"activate"           ) activate "${@:2}";;
 		*                    ) activate "$@"    ;;
 	esac
 	shift
-	sub=$1
 done
