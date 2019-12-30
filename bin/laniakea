@@ -70,8 +70,12 @@ function activate {
 #==============================================================================
 # The "main" program
 
-case "$sub" in
-	"--help" | "-h" | "" ) help             ;;
-	"activate"           ) activate "${@:2}";;
-	*                    ) activate "$@"    ;;
-esac
+while :; do
+	case "$sub" in
+		"--help" | "-h" | "" ) help             ;;
+		"activate"           ) activate "${@:2}";;
+		*                    ) activate "$@"    ;;
+	esac
+	shift
+	sub=$1
+done
