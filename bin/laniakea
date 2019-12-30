@@ -18,6 +18,10 @@
 cmd=$0
 sub=$1
 
+#==============================================================================
+# The `laniakea` command has three functionalities: `help`, `unknown`,
+# and `run`, which should all exit after done.
+
 function help {
 	cat << EOF
 Usage: $cmd <subcommand> [args]
@@ -34,7 +38,13 @@ EOF
 
 function run {
 	docker run --rm -it -u $(id -u):$(id -g) -e USER "${@}"
+	exit 0
 }
+
+#==============================================================================
+# The `activate` function should check its first argument, look for
+# the apropiate docker image to use, and send the arguments to the
+# previous funcitonalities.
 
 function activate {
 	i="$1"
@@ -53,7 +63,12 @@ function activate {
 	test -z "$i" && unknown "$i"
 
 	run -v "$HOME:/home/$USER" "$i" "${@:2}"
+
+	exit 1 # should never reach here
 }
+
+#==============================================================================
+# The "main" program
 
 case "$sub" in
 	"--help" | "-h" | "" ) help             ;;
