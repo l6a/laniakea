@@ -92,9 +92,10 @@ while :; do
 		echo "Dev-mode for \"$pkg\" (\"$hst\" -> \"$con\")"
 		addflags -v "$hst:$con"
 		;;
-	"--help" | "-h" | "") help             ;;
-	"activate"          ) activate "${@:2}";;
-	*                   ) activate "$@"    ;;
+	"--help" | "-h" | "") help                  ;;
+	"--x11"  | "-x"     ) addflags $(x11-flags) ;;
+	"activate"          ) activate "${@:2}"     ;;
+	*                   ) activate "$@"         ;;
 	esac
 	shift
 done
