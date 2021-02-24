@@ -23,6 +23,23 @@ fi
 
 case $(uname) in
 Darwin)
+	# Docker actually runs inside a virtual machine through
+	# HyperKit (which uses Hypervisor.framework) on MacOS.
+	# Therefore, we cannot simply connect/mount the container and
+	# host sockets.  Instead, we need to use network.
+	#
+	# For the following hack to work, you need to:
+	#
+	# 1. install X11 on your Mac;
+	#
+	# 2. in X11->Preferences->Security, you *have to* check "Allow
+	#    connections from network clients";
+	#
+	# 3. in X11->Preferences->Security, you can optionally check
+	#    "Authenticate connections".  If you check that, the
+	#    following `xhost + $IP 1>&2` command is required.  If you
+	#    uncheck it, that command has no effect.
+	#
 	IP=$(ifconfig | \
 	     sed -En 's/127.0.0.1//;s/.*inet (([0-9]*\.){3}[0-9]*).*/\1/p' | \
 	     tail -n1)
