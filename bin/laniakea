@@ -21,7 +21,18 @@
 
 help() {
 	cat << EOF
-Usage: $cmd <subcommand> [args]
+Usage: $cmd <subcommand> [opts] [args]
+
+laniakea makes running containers natural and portable.
+
+Basic commands:
+  activate        Run a docker container as an environment.
+
+Options:
+  --develop,-d    Activate a docker environment in development mode
+  --help,-h       Print this help
+
+Report laniakea (l6a) bugs to <chanc@arizona.edu>.
 EOF
 	exit 0
 }
