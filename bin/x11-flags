@@ -37,16 +37,13 @@ Darwin)
 	#
 	# 3. in X11->Preferences->Security, you can optionally check
 	#    "Authenticate connections".  If you check that, the
-	#    following `xhost + $IP 1>&2` command is required.  If you
-	#    uncheck it, that command has no effect.
+	#    following `xhost` command is required.  If you uncheck
+	#    it, that command has no effect.
 	#
-	IP=$(ifconfig | \
-	     sed -En 's/127.0.0.1//;s/.*inet (([0-9]*\.){3}[0-9]*).*/\1/p' | \
-	     tail -n1)
 	SS=$(echo $DISPLAY | \
 	     sed -En 's/.*:(.*)/\1/p')
-	xhost + $IP 1>&2
-	echo "-e DISPLAY=$IP:$SS"
+	xhost + 127.0.0.1 1>&2
+	echo "-e DISPLAY=host.docker.internal:$SS"
 	;;
 Linux)
 	echo "-e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix"
