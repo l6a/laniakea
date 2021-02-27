@@ -93,7 +93,7 @@ singularity_run() {
 
 #==============================================================================
 # The `activate` function should check its first argument, look for
-# the apropiate docker image to use, and send the arguments to the
+# the appropriate docker image to use, and send the arguments to the
 # previous functionalities.
 
 FLAGS=()
@@ -103,17 +103,12 @@ addflags() {
 }
 
 activate() {
-	case "$1" in
-	-*) ${L6A_BACKEND}_run "$@"; exit $?;;
-	esac
+	test ${1:0:1} != '-' && set -- "$(docker_search $1)" "${@:2}"
 
-	n=$(docker_search "$1")
-
-	echo "[laniakea] activating \"$n\" with ${L6A_BACKEND}"
-
+	echo "[laniakea] activating \"$1\" with ${L6A_BACKEND}"
 	addflags '--rm' '-i' '-t'
 	addflags -v "$HOME:/home/$USER"
-	${L6A_BACKEND}_run "$n" "${@:2}"
+	${L6A_BACKEND}_run "$@"
 
 	exit 1 # should never reach here
 }
