@@ -71,12 +71,13 @@ docker_search() {
 	esac
 
 	for q in "${p[@]}"; do
-		i=$(docker images -f "reference=$q" -q | head -n1)
+		i=$(${L6A_BACKEND_EXEC} images -f "reference=$q" -q | head -n1)
 		test -n "$i" && break
 	done
 	test -z "$i" && unknown "$i"
 
-	docker images -f "reference=$q" \
+	${L6A_BACKEND_EXEC} images      \
+		--filter "reference=$q" \
 		--format '{{.Repository}}:{{.Tag}}' | head -n1
 }
 
