@@ -98,7 +98,10 @@ EOF
 }
 
 docker_run() {
-	"${L6A_EXEC}" run -u "$(id -u):$(id -g)" -e USER "${FLAGS[@]}" "${@}"
+	addflags '--rm' '-i' '-t'
+	addflags -u "$(id -u):$(id -g)" -e USER
+	addflags -v "$HOME:/home/$USER"
+	"${L6A_EXEC}" run "${FLAGS[@]}" "${@}"
 	exit 0
 }
 
@@ -122,8 +125,6 @@ activate() {
 	test "${1:0:1}" != '-' && set -- "$(${L6A_BACKEND}_search $1)" "${@:2}"
 
 	echo "[laniakea] activating \"$1\" with ${L6A_BACKEND}"
-	addflags '--rm' '-i' '-t'
-	addflags -v "$HOME:/home/$USER"
 	${L6A_BACKEND}_run "$@"
 
 	exit 1 # should never reach here
