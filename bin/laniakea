@@ -63,8 +63,13 @@ EOF
 	exit 1
 }
 
-run() {
-	docker run "${FLAGS[@]}" -u $(id -u):$(id -g) -e USER "${@}"
+docker_run() {
+	${L6A_BACKEND_EXEC} run -u $(id -u):$(id -g) -e USER "${FLAGS[@]}" "${@}"
+	exit 0
+}
+
+singularity_run() {
+	${L6A_BACKEND_EXEC} shell "${FLAGS[@]}" "${@}"
 	exit 0
 }
 
@@ -82,7 +87,7 @@ addflags() {
 activate() {
 	i="$1" # image: keep it short so the cases below are readable
 	case "$i" in
-	-* ) run "$@"; exit $?;;
+	-* ) ${L6A_BACKEND}_run "$@"; exit $?;;
 	*/*) p=("$i" "$i*");;
 	*  ) p=("$i" "$i*" "*/$i" "*/$i*");;
 	esac
@@ -95,11 +100,11 @@ activate() {
 
 	n=$(docker images -f "reference=$q" \
 		--format '{{.Repository}}:{{.Tag}}' | head -n1)
-	echo "[laniakea] activating \"$n\""
+	echo "[laniakea] activating \"$n\" with ${L6A_BACKEND}"
 
 	addflags '--rm' '-i' '-t'
 	addflags -v "$HOME:/home/$USER"
-	run "$i" "${@:2}"
+	${L6A_BACKEND}_run "$i" "${@:2}"
 
 	exit 1 # should never reach here
 }
