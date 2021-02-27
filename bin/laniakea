@@ -34,7 +34,15 @@ else
 fi
 
 #==============================================================================
-# Helper functions that may be backend dependent
+# Helper functions, which may be backend dependent
+
+FLAGS=()
+
+addflags() {
+	FLAGS=("${FLAGS[@]}" "$@")
+}
+
+#------------------------------------------------------------------------------
 
 docker_search() {
 	i="$1" # image: keep it short so the cases below are readable
@@ -67,9 +75,22 @@ singularity_search() {
 	echo "$i"
 }
 
+#------------------------------------------------------------------------------
+
+docker_run() {
+	addflags '--rm' '-i' '-t'
+	addflags -u "$(id -u):$(id -g)" -e USER
+	addflags -v "$HOME:/home/$USER"
+	"${L6A_EXEC}" run "${FLAGS[@]}" "${@}"
+}
+
+singularity_run() {
+	"${L6A_EXEC}" shell "${FLAGS[@]}" "${@}"
+}
+
 #==============================================================================
 # The `laniakea` command has three functionalities: `help`, `unknown`,
-# and `run`, which should all exit after done.
+# and `activate`, which should all exit after done.
 
 help() {
 	cat << EOF
@@ -97,37 +118,17 @@ EOF
 	exit 1
 }
 
-docker_run() {
-	addflags '--rm' '-i' '-t'
-	addflags -u "$(id -u):$(id -g)" -e USER
-	addflags -v "$HOME:/home/$USER"
-	"${L6A_EXEC}" run "${FLAGS[@]}" "${@}"
-	exit 0
-}
-
-singularity_run() {
-	"${L6A_EXEC}" shell "${FLAGS[@]}" "${@}"
-	exit 0
-}
-
-#==============================================================================
-# The `activate` function should check its first argument, look for
-# the appropriate docker image to use, and send the arguments to the
-# previous functionalities.
-
-FLAGS=()
-
-addflags() {
-	FLAGS=("${FLAGS[@]}" "$@")
-}
-
 activate() {
+	# The `activate` function should check its first argument,
+	# look for the appropriate docker image to use, and send the
+	# arguments to `${L6A_BACKEND}_run`.
+
 	test "${1:0:1}" != '-' && set -- "$(${L6A_BACKEND}_search $1)" "${@:2}"
 
 	echo "[laniakea] activating \"$1\" with ${L6A_BACKEND}"
-	${L6A_BACKEND}_run "$@"
 
-	exit 1 # should never reach here
+	${L6A_BACKEND}_run "$@"
+	exit $?
 }
 
 #==============================================================================
