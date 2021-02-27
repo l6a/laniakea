@@ -30,8 +30,29 @@ if [ -z ${L6A_BACKEND+x} ]; then
 	echo 'Container backend not found'
 	exit -1
 else
-	L6A_BACKEND_EXEC=$(which $L6A_BACKEND)
+	L6A_EXEC="$(which $L6A_BACKEND)"
 fi
+
+#==============================================================================
+# Helper functions that may be backend dependent
+
+docker_search() {
+	i="$1" # image: keep it short so the cases below are readable
+	case "$i" in
+	*/*) p=("$i" "$i*");;
+	*  ) p=("$i" "$i*" "*/$i" "*/$i*");;
+	esac
+
+	for q in "${p[@]}"; do
+		i=$("${L6A_EXEC}" images -f "reference=$q" -q | head -n1)
+		test -n "$i" && break
+	done
+	test -z "$i" && unknown "$i"
+
+	"${L6A_EXEC}" images            \
+		--filter "reference=$q" \
+		--format '{{.Repository}}:{{.Tag}}' | head -n1
+}
 
 #==============================================================================
 # The `laniakea` command has three functionalities: `help`, `unknown`,
@@ -42,7 +63,7 @@ help() {
 Usage: $cmd <subcommand> [opts] [args]
 
 laniakea makes running containers natural and portable.
-${L6A_BACKEND} backend is used: "${L6A_BACKEND_EXEC}".
+${L6A_BACKEND} backend is used: "${L6A_EXEC}".
 
 Basic commands:
   activate        Run a ${L6A_BACKEND} container as an environment.
@@ -63,31 +84,13 @@ EOF
 	exit 1
 }
 
-docker_search() {
-	i="$1" # image: keep it short so the cases below are readable
-	case "$i" in
-	*/*) p=("$i" "$i*");;
-	*  ) p=("$i" "$i*" "*/$i" "*/$i*");;
-	esac
-
-	for q in "${p[@]}"; do
-		i=$(${L6A_BACKEND_EXEC} images -f "reference=$q" -q | head -n1)
-		test -n "$i" && break
-	done
-	test -z "$i" && unknown "$i"
-
-	${L6A_BACKEND_EXEC} images      \
-		--filter "reference=$q" \
-		--format '{{.Repository}}:{{.Tag}}' | head -n1
-}
-
 docker_run() {
-	${L6A_BACKEND_EXEC} run -u $(id -u):$(id -g) -e USER "${FLAGS[@]}" "${@}"
+	"${L6A_EXEC}" run -u "$(id -u):$(id -g)" -e USER "${FLAGS[@]}" "${@}"
 	exit 0
 }
 
 singularity_run() {
-	${L6A_BACKEND_EXEC} shell "${FLAGS[@]}" "${@}"
+	"${L6A_EXEC}" shell "${FLAGS[@]}" "${@}"
 	exit 0
 }
 
@@ -103,7 +106,7 @@ addflags() {
 }
 
 activate() {
-	test ${1:0:1} != '-' && set -- "$(docker_search $1)" "${@:2}"
+	test "${1:0:1}" != '-' && set -- "$(docker_search $1)" "${@:2}"
 
 	echo "[laniakea] activating \"$1\" with ${L6A_BACKEND}"
 	addflags '--rm' '-i' '-t'
@@ -116,10 +119,10 @@ activate() {
 #==============================================================================
 # The "main" program
 
-cmd=$(basename $0)
+cmd="$(basename $0)"
 
 while :; do
-	sub=$1
+	sub="$1"
 	case "$sub" in
 	"--develop" | "-d"  )
 		# Development mode for python packages
@@ -127,7 +130,7 @@ while :; do
 		pkg="$(basename $1)"
 		hst="${1%:*}"
 		con="/usr/local/src/${pkg##*:}"
-		test ${hst:0:1} == '/' || hst="$PWD/$hst" # absolute path
+		test "${hst:0:1}" == '/' || hst="$PWD/$hst" # absolute path
 		echo "Dev-mode for \"$pkg\" (\"$hst\" -> \"$con\")"
 		addflags -v "$hst:$con"
 		;;
