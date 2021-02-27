@@ -63,6 +63,23 @@ EOF
 	exit 1
 }
 
+docker_search() {
+	i="$1" # image: keep it short so the cases below are readable
+	case "$i" in
+	*/*) p=("$i" "$i*");;
+	*  ) p=("$i" "$i*" "*/$i" "*/$i*");;
+	esac
+
+	for q in "${p[@]}"; do
+		i=$(docker images -f "reference=$q" -q | head -n1)
+		test -n "$i" && break
+	done
+	test -z "$i" && unknown "$i"
+
+	docker images -f "reference=$q" \
+		--format '{{.Repository}}:{{.Tag}}' | head -n1
+}
+
 docker_run() {
 	${L6A_BACKEND_EXEC} run -u $(id -u):$(id -g) -e USER "${FLAGS[@]}" "${@}"
 	exit 0
@@ -85,26 +102,17 @@ addflags() {
 }
 
 activate() {
-	i="$1" # image: keep it short so the cases below are readable
-	case "$i" in
-	-* ) ${L6A_BACKEND}_run "$@"; exit $?;;
-	*/*) p=("$i" "$i*");;
-	*  ) p=("$i" "$i*" "*/$i" "*/$i*");;
+	case "$1" in
+	-*) ${L6A_BACKEND}_run "$@"; exit $?;;
 	esac
 
-	for q in "${p[@]}"; do
-		i=$(docker images -f "reference=$q" -q | head -n1)
-		test -n "$i" && break
-	done
-	test -z "$i" && unknown "$i"
+	n=$(docker_search "$1")
 
-	n=$(docker images -f "reference=$q" \
-		--format '{{.Repository}}:{{.Tag}}' | head -n1)
 	echo "[laniakea] activating \"$n\" with ${L6A_BACKEND}"
 
 	addflags '--rm' '-i' '-t'
 	addflags -v "$HOME:/home/$USER"
-	${L6A_BACKEND}_run "$i" "${@:2}"
+	${L6A_BACKEND}_run "$n" "${@:2}"
 
 	exit 1 # should never reach here
 }
