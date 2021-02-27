@@ -57,7 +57,7 @@ docker_search() {
 singularity_search() {
 	i="$1"
 	if test "${#i}" -ge 4 -o "${i: -4}" != '.sif'; then
-		for p in . "$(echo ${L6A_PATH} | tr ':' ' ')"; do
+		for p in . "$(echo ${L6A_IMAGE_PATH} | tr ':' ' ')"; do
 			if test -f "${p}/${i}.sif"; then
 				i="${p}/${i}.sif"
 				break
