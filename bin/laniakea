@@ -16,21 +16,22 @@
 # permissions and limitations under the License.
 
 #==============================================================================
-# The `laniakea` command supports multiple container backends,
-# including docker and singularity
+# The `laniakea` command supports multiple host operating systems
+# (e.g., debian, fedora, and macOS) and container backends (e.g.,
+# docker and singularity).
+
+L6A_HOST="$OSTYPE"
 
 for backend in docker singularity; do
 	if ${backend} --version &> /dev/null; then
-		L6A_BACKEND=${backend}
+		L6A_CRT=${backend}
 		break
 	fi
 done; unset backend
 
-if [ -z ${L6A_BACKEND+x} ]; then
+if [ -z ${L6A_CRT+x} ]; then
 	echo 'Container backend not found'
 	exit -1
-else
-	L6A_EXEC="$(which $L6A_BACKEND)"
 fi
 
 #==============================================================================
@@ -52,12 +53,12 @@ docker_search() {
 	esac
 
 	for q in "${p[@]}"; do
-		i=$("${L6A_EXEC}" images -f "reference=$q" -q | head -n1)
+		i=$("${L6A_CRT}" images -f "reference=$q" -q | head -n1)
 		test -n "$i" && break
 	done
 	test -z "$i" && unknown "$i"
 
-	"${L6A_EXEC}" images            \
+	"${L6A_CRT}" images             \
 		--filter "reference=$q" \
 		--format '{{.Repository}}:{{.Tag}}' | head -n1
 }
@@ -81,11 +82,11 @@ docker_run() {
 	addflags '--rm' '-i' '-t'
 	addflags -u "$(id -u):$(id -g)" -e USER
 	addflags -v "$HOME:/home/$USER"
-	"${L6A_EXEC}" run "${FLAGS[@]}" "${@}"
+	"${L6A_CRT}" run "${FLAGS[@]}" "${@}"
 }
 
 singularity_run() {
-	"${L6A_EXEC}" shell "${FLAGS[@]}" "${@}"
+	"${L6A_CRT}" shell "${FLAGS[@]}" "${@}"
 }
 
 #==============================================================================
@@ -97,13 +98,14 @@ help() {
 Usage: $cmd <subcommand> [opts] [args]
 
 laniakea makes running containers natural and portable.
-${L6A_BACKEND} backend is used: "${L6A_EXEC}".
+  Host OS: ${L6A_HOST}
+  Backend: ${L6A_CRT}
 
 Basic commands:
-  activate        Run a ${L6A_BACKEND} container as an environment.
+  activate        Run a ${L6A_CRT} container as an environment.
 
 Options:
-  --develop,-d    Activate a ${L6A_BACKEND} environment in development mode
+  --develop,-d    Activate a ${L6A_CRT} environment in development mode
   --help,-h       Print this help
 
 Report laniakea (l6a) bugs to <chanc@arizona.edu>.
@@ -121,13 +123,13 @@ EOF
 activate() {
 	# The `activate` function should check its first argument,
 	# look for the appropriate docker image to use, and send the
-	# arguments to `${L6A_BACKEND}_run`.
+	# arguments to `${L6A_CRT}_run`.
 
-	test "${1:0:1}" != '-' && set -- "$(${L6A_BACKEND}_search $1)" "${@:2}"
+	test "${1:0:1}" != '-' && set -- "$(${L6A_CRT}_search $1)" "${@:2}"
 
-	echo "[laniakea] activating \"$1\" with ${L6A_BACKEND}"
+	echo "[laniakea] activating \"$1\" with ${L6A_CRT}"
 
-	${L6A_BACKEND}_run "$@"
+	${L6A_CRT}_run "$@"
 	exit $?
 }
 
