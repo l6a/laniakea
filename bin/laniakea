@@ -16,6 +16,24 @@
 # permissions and limitations under the License.
 
 #==============================================================================
+# The `laniakea` command supports multiple container backends,
+# including docker and singularity
+
+for backend in docker singularity; do
+	if ${backend} --version &> /dev/null; then
+		L6A_BACKEND=${backend}
+		break
+	fi
+done; unset backend
+
+if [ -z ${L6A_BACKEND+x} ]; then
+	echo 'Container backend not found'
+	exit -1
+else
+	L6A_BACKEND_EXEC=$(which $L6A_BACKEND)
+fi
+
+#==============================================================================
 # The `laniakea` command has three functionalities: `help`, `unknown`,
 # and `run`, which should all exit after done.
 
@@ -24,12 +42,13 @@ help() {
 Usage: $cmd <subcommand> [opts] [args]
 
 laniakea makes running containers natural and portable.
+${L6A_BACKEND} backend is used: "${L6A_BACKEND_EXEC}".
 
 Basic commands:
-  activate        Run a docker container as an environment.
+  activate        Run a ${L6A_BACKEND} container as an environment.
 
 Options:
-  --develop,-d    Activate a docker environment in development mode
+  --develop,-d    Activate a ${L6A_BACKEND} environment in development mode
   --help,-h       Print this help
 
 Report laniakea (l6a) bugs to <chanc@arizona.edu>.
