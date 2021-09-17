@@ -40,10 +40,12 @@ Darwin)
 	#    following `xhost` command is required.  If you uncheck
 	#    it, that command has no effect.
 	#
-	SS=$(echo $DISPLAY | \
-	     sed -En 's/.*:(.*)/\1/p')
-	xhost + 127.0.0.1 1>&2
-	echo "-e DISPLAY=host.docker.internal:$SS"
+	if xhost + 127.0.0.1 1>&2 ; then
+		SS=$(echo $DISPLAY | sed -En 's/.*:(.*)/\1/p')
+		echo "-e DISPLAY=host.docker.internal:$SS"
+	else
+		>&2 echo "Your system does not seem to support X11.  SKIP."
+	fi
 	;;
 Linux)
 	echo "-e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix"
