@@ -114,7 +114,9 @@ Basic commands:
 
 Options:
   --develop,-d    Activate a ${L6A_CRT} environment in development mode
+  --verbose,-v    Print extra information while starting a container
   --help,-h       Print this help
+  --x11,-x        Enable x11 support on Mac and Linux
 
 Report laniakea (l6a) bugs to <chanc@arizona.edu>.
 EOF
