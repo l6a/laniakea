@@ -38,6 +38,7 @@ fi
 # Helper functions, which may be backend dependent
 
 FLAGS=()
+VERBOSE=0
 
 addflags() {
 	FLAGS=("${FLAGS[@]}" "$@")
@@ -82,10 +83,17 @@ docker_run() {
 	addflags '--rm' '-i' '-t'
 	addflags -u "$(id -u):$(id -g)" -e USER
 	addflags -v "$HOME:/home/$USER"
+
+	if [ $VERBOSE -gt 0 ]; then
+		echo "${L6A_CRT}" run "${FLAGS[@]}" "${@}"
+	fi
 	"${L6A_CRT}" run "${FLAGS[@]}" "${@}"
 }
 
 singularity_run() {
+	if [ $VERBOSE -gt 0 ]; then
+		echo "${L6A_CRT}" shell "${FLAGS[@]}" "${@}"
+	fi
 	"${L6A_CRT}" shell "${FLAGS[@]}" "${@}"
 }
 
@@ -159,6 +167,7 @@ while :; do
 		echo "Dev-mode for \"$pkg\" (\"$hst\" -> \"$con\")"
 		addflags -v "$hst:$con"
 		;;
+	"--verbose" | "-v"  ) VERBOSE=1             ;;
 	"--help" | "-h" | "") help                  ;;
 	"--x11"  | "-x"     ) addflags $(x11-flags) ;;
 	"activate"          ) activate "${@:2}"     ;;
