@@ -117,6 +117,7 @@ Options:
   --verbose,-v    Print extra information while starting a container
   --help,-h       Print this help
   --x11,-x        Enable x11 support on Mac and Linux
+  --port,-p       Port forwarding
 
 Report laniakea (l6a) bugs to <chanc@arizona.edu>.
 EOF
@@ -169,11 +170,12 @@ while :; do
 		echo "Dev-mode for \"$pkg\" (\"$hst\" -> \"$con\")"
 		addflags -v "$hst:$con"
 		;;
-	"--verbose" | "-v"  ) VERBOSE=1             ;;
-	"--help" | "-h" | "") help                  ;;
-	"--x11"  | "-x"     ) addflags $(x11-flags) ;;
-	"activate"          ) activate "${@:2}"     ;;
-	*                   ) activate "$@"         ;;
+	"--verbose" | "-v"  ) VERBOSE=1                 ;;
+	"--help" | "-h" | "") help                      ;;
+	"--x11"  | "-x"     ) addflags $(x11-flags)     ;;
+	"--port" | "-p"     ) addflags -p "${2}"; shift ;;
+	"activate"          ) activate "${@:2}"         ;;
+	*                   ) activate "$@"             ;;
 	esac
 	shift
 done
