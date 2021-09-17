@@ -140,11 +140,12 @@ activate() {
 
 	echo "[laniakea] activating \"$1\" with ${L6A_CRT}"
 
-	opts=$(docker inspect --format '{{ index .Config.Labels "l6aopt"}}' "$1")
+	opts=$(docker inspect -f '{{ index .Config.Labels "l6aopt"}}' "$1")
 	for opt in $(echo $opts | tr ',' ' '); do
 		case "$opt" in
+		"x11"   ) addflags $(x11-flags)         ;;
 		"port"* ) p=$(echo $opt | cut -d: -f2-)
-		          addflags -p "${p}:${p}" ;;
+		          addflags -p "${p}:${p}"       ;;
 		esac
 	done
 
