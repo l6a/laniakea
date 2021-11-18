@@ -22,7 +22,7 @@
 
 L6A_HOST="$OSTYPE"
 
-for backend in docker singularity; do
+for backend in python3 docker singularity; do
 	if ${backend} --version &> /dev/null; then
 		L6A_CRT=${backend}
 		break
@@ -30,7 +30,7 @@ for backend in docker singularity; do
 done; unset backend
 
 if [ -z ${L6A_CRT+x} ]; then
-	echo 'Container backend not found'
+	echo 'Backend not found'
 	exit -1
 fi
 
@@ -77,6 +77,13 @@ singularity_search() {
 	echo "$i"
 }
 
+python3_search() {
+	m="$1"
+	if test -f "$HOME/.venv/$m/bin/activate"; then
+		echo "$m"
+	fi
+}
+
 #------------------------------------------------------------------------------
 
 docker_run() {
@@ -95,6 +102,10 @@ singularity_run() {
 		echo "${L6A_CRT}" shell "${FLAGS[@]}" "${@}"
 	fi
 	"${L6A_CRT}" shell "${FLAGS[@]}" "${@}"
+}
+
+python3_run() {
+	bash --rcfile "$HOME/.venv/$1/bin/activate"
 }
 
 #==============================================================================
