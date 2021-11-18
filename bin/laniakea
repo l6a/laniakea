@@ -142,6 +142,14 @@ EOF
 	exit 1
 }
 
+list() {
+	for f in $HOME/.venv/*/bin/activate; do
+		f=${f%/bin/activate}
+		echo ${f##*/}
+	done
+	exit 0
+}
+
 activate() {
 	# The `activate` function should check its first argument,
 	# look for the appropriate docker image to use, and send the
@@ -187,6 +195,7 @@ while :; do
 	"--x11"  | "-x"     ) addflags $(x11-flags)     ;;
 	"--port" | "-p"     ) addflags -p "${2}"; shift ;;
 	"activate"          ) activate "${@:2}"         ;;
+	"list" | "ls"       ) list     "$@"             ;;
 	*                   ) activate "$@"             ;;
 	esac
 	shift
